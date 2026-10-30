@@ -20,7 +20,7 @@ Le cahier des charges est [docs/cadrage-berya.md](docs/cadrage-berya.md) ; les r
 ```bash
 brew install ollama && brew services start ollama
 ollama pull mistral-small3.2 && ollama pull qwen3:8b
-uv sync                         # Python 3.12, versions figées par uv.lock
+uv sync                         # Python 3.14, versions figées par uv.lock
 cp .env.example .env            # puis renseigner ANTHROPIC_API_KEY et LANGSMITH_API_KEY
 uv run python smoke.py
 ```
@@ -48,6 +48,7 @@ uv run python prompts.py        # vérifie les 7 prompts (variables, échappemen
 | LLM cas A | `mistral-small3.2` (gen), `qwen3:8b` (util), via Ollama |
 | LLM cas B | `claude-sonnet-5-5` (gen), `claude-haiku-5-5` (util et juge des evals) |
 | Prompts | `v1` |
+| Python | 3.14 (`.python-version`, `requires-python >= 3.14`) |
 | Bibliothèques | `uv.lock` : langchain 1.4.7, langchain-core 1.7.3, langgraph 1.2.18, langsmith 0.14.16, langchain-anthropic 1.7.7 (SDK anthropic 2.3.0), langchain-ollama 1.1.0, sentence-transformers 6.2.0, chromadb 1.5.9, torch 2.15.0 |
 
 ## Écarts assumés par rapport au cadrage
@@ -63,6 +64,8 @@ uv run python prompts.py        # vérifie les 7 prompts (variables, échappemen
 - **`max_tokens` de util porté de 300 à 1 024** : 300 risquait de tronquer le champ `explanation` des sorties
   structurées (`GroundGrade`, juges).
 - **`llm.make_judge()`** fournit le juge des evals, pour que `eval.py` n'instancie pas `ChatAnthropic` en dur.
+- **Python 3.14** au lieu de 3.12 : toutes les dépendances (torch, chromadb, onnxruntime, pyarrow, tokenizers)
+  publient des wheels macOS arm64 pour 3.14, aucune compilation depuis les sources.
 - **`config.py`** ajoute `DEVICE`, `EMBED_DIM`, `CORPUS_DATE`, les `num_ctx` et `max_tokens`, et charge `.env` lui-même.
 
 ## Structure

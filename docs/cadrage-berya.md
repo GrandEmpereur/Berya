@@ -156,7 +156,7 @@ brew install ollama && brew services start ollama
 ollama pull mistral-small3.2 && ollama pull qwen3:8b
 ollama run qwen3:8b "Réponds OK."          # vérifie que ça tourne sur le GPU Metal
 
-uv init berya && cd berya && uv python pin 3.12
+uv init berya && cd berya && uv python pin 3.14
 uv add datasets langchain langchain-core langchain-text-splitters langchain-huggingface \
        sentence-transformers langchain-chroma langchain-community rank_bm25 \
        langchain-ollama langchain-anthropic langgraph langsmith python-dotenv pandas
@@ -705,7 +705,7 @@ Le document de cadrage fait foi : docs/cadrage-berya.md (export Markdown du doc 
 (architecture, interfaces, planning, critères de sortie). Ne change pas l'architecture sans me le dire.
 
 ## Stack imposée
-Python 3.12 + uv ; LangChain 1.x, LangGraph 1.x, LangSmith ; Hugging Face datasets + sentence-transformers ;
+Python 3.14 + uv ; LangChain 1.x, LangGraph 1.x, LangSmith ; Hugging Face datasets + sentence-transformers ;
 Chroma + rank_bm25 ; langchain-ollama (cas A) et langchain-anthropic (cas B). Pas d'autre framework.
 
 ## Règles
