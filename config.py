@@ -40,6 +40,8 @@ PROMPTS_VERSION = "v1"
 CACHE_TTL_S     = 7 * 24 * 3600
 CORPUS_VERSION  = "code-travail-2025-07-11"
 CORPUS_DATE     = "11 juillet 2025"              # forme lisible, reprise dans ANSWER_PROMPT
+CORPUS_REPO     = "louisbrulenaudet/code-travail"
+CORPUS_REVISION = "0677dc295c32354a6b21a6b897c9d09269b61caa"   # commit HF du dataset, figé pour la reproductibilité
 INDEX_DIR       = "index"
 
 

@@ -11,6 +11,7 @@ Le cahier des charges est [docs/cadrage-berya.md](docs/cadrage-berya.md) ; les r
 | Bloc | État |
 | --- | --- |
 | Setup (`config.py`, `llm.py`, `prompts.py`, `smoke.py`) | Code écrit, `smoke.py` à valider sur le M3 Pro |
+| Données (datasets Hugging Face récupérés, révision figée) | Fait |
 | Ingestion, Index + fusion, Jeu d'éval, Reranker + mesure, Baseline + LangSmith | À faire (samedi) |
 | Graph, Eval agentic | À faire (dimanche) |
 | Variante Claude, cas d'étude, vidéo | À faire (semaine 2) |
@@ -38,11 +39,33 @@ uv run python prompts.py        # vérifie les 7 prompts (variables, échappemen
 À venir : `ingest.py`, `retriever.py "L1234-9"`, `graph.py "question"`, `eval.py`,
 `BERYA_BACKEND=claude uv run python graph.py "question"`.
 
+## Données
+
+Le corpus n'est pas versionné dans le repo : il est chargé depuis Hugging Face (Apache 2.0) à une révision figée
+dans `config.py`, ce qui garantit à tout le monde les mêmes articles, même si l'auteur republie le dataset.
+
+```python
+load_dataset(C.CORPUS_REPO, split="train", revision=C.CORPUS_REVISION)
+```
+
+Le premier chargement télécharge 10,5 Mo dans `~/.cache/huggingface/` ; ensuite tout tourne hors ligne
+(`HF_HUB_OFFLINE=1 HF_DATASETS_OFFLINE=1`).
+
+| Dataset | Révision HF | Lignes | États | Indexées (`VIGUEUR` + texte) |
+| --- | --- | ---: | --- | ---: |
+| `louisbrulenaudet/code-travail` | `0677dc295c32354a6b21a6b897c9d09269b61caa` | 9 774 | VIGUEUR 9 732 · ABROGE_DIFF 42 | 9 732 |
+| `louisbrulenaudet/code-civil` | `6db84f4ac37e4bc64310d8e25c28ea00168e9176` | 2 893 | VIGUEUR 2 885 · ABROGE_DIFF 8 | non indexé |
+
+- Aucun article `ABROGE` dans ce snapshot : les seuls écartés sont les `ABROGE_DIFF` (abrogation différée).
+- Le Code civil est téléchargé pour l'extension multi-codes mais n'est pas indexé : routeur, prompts et jeu d'éval
+  sont limités au Code du travail (la question « bail » du jeu d'éval doit rester hors périmètre).
+- `fullSectionsTitre` contient des entités HTML (`&gt;` comme séparateur) : à décoder dans `ingest.py`.
+
 ## Versions figées
 
 | Élément | Valeur |
 | --- | --- |
-| Corpus | `louisbrulenaudet/code-travail`, version du 11 juillet 2025 (`CORPUS_VERSION = code-travail-2025-07-11`) |
+| Corpus | `louisbrulenaudet/code-travail`, version du 11 juillet 2025 (`CORPUS_VERSION = code-travail-2025-07-11`), révision HF `0677dc295c32354a6b21a6b897c9d09269b61caa` (`CORPUS_REVISION`) |
 | Embedding | `BAAI/bge-m3`, 1 024 dimensions (en changer oblige à réindexer) |
 | Reranker | `BAAI/bge-reranker-v2-m3` |
 | LLM cas A | `mistral-small3.2` (gen), `qwen3:8b` (util), via Ollama |
@@ -66,6 +89,8 @@ uv run python prompts.py        # vérifie les 7 prompts (variables, échappemen
 - **`llm.make_judge()`** fournit le juge des evals, pour que `eval.py` n'instancie pas `ChatAnthropic` en dur.
 - **Python 3.14** au lieu de 3.12 : toutes les dépendances (torch, chromadb, onnxruntime, pyarrow, tokenizers)
   publient des wheels macOS arm64 pour 3.14, aucune compilation depuis les sources.
+- **Corpus figé à une révision** (`CORPUS_REPO`, `CORPUS_REVISION` dans `config.py`) ; le cadrage annonce
+  « 9 800 articles », le snapshot compte 9 774 lignes dont 9 732 en vigueur.
 - **`config.py`** ajoute `DEVICE`, `EMBED_DIM`, `CORPUS_DATE`, les `num_ctx` et `max_tokens`, et charge `.env` lui-même.
 
 ## Structure
